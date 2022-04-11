@@ -13,7 +13,7 @@ export default function applyAuthMiddleware(app) {
       res,
       req.query.shop,
       "/auth/callback",
-      app.get("use-online-tokens")
+      req.params.fetchOnlineToken
     );
 
     res.redirect(redirectUrl);
@@ -64,6 +64,12 @@ export default function applyAuthMiddleware(app) {
         console.log(
           `Failed to register APP_UNINSTALLED webhook: ${response.result}`
         );
+      }
+
+      if (!session.isOnline) {
+        // redirect to auth again to get the online token
+        res.redirect(`/?auth=${session.shop}&fetchOnlineToken`);
+        return
       }
 
       // Redirect to app with shop parameter upon auth
